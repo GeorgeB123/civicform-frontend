@@ -1,4 +1,4 @@
-import { WebformStructure, FormData as WebformData } from '@/types/webform';
+import { WebformStructure, FormData as WebformData, WebformApiResponse } from '@/types/webform';
 
 export class WebformService {
   private baseUrl: string;
@@ -7,10 +7,10 @@ export class WebformService {
     this.baseUrl = baseUrl;
   }
 
-  async fetchFormStructure(webformId: string): Promise<WebformStructure> {
+  async fetchFormStructure(webformId: string): Promise<WebformApiResponse> {
     try {
       console.log('Fetching form structure for:', webformId);
-      const response = await fetch(`https://1c94-2404-4400-544c-5800-68dc-36ec-a420-bfca.ngrok-free.app/webform_rest/${webformId}/fields`);
+      const response = await fetch(`${this.baseUrl}/api/webform/${webformId}/structure`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch form structure: ${response.status} ${response.statusText}`);
