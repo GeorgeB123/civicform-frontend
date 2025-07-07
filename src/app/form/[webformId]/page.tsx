@@ -32,7 +32,7 @@ export default function WebformPage() {
       setError(null);
       
       const structure = await webformService.fetchFormStructure(webformId);
-      setWebformStructure(structure);
+      setWebformStructure(structure.elements);
     } catch (err) {
       console.error('Error loading form structure:', err);
       setError(err instanceof Error ? err.message : 'Failed to load form');
