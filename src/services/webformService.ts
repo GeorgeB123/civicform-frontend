@@ -1,4 +1,4 @@
-import { WebformStructure, FormData as WebformData, WebformApiResponse } from '@/types/webform';
+import { FormData as WebformData, WebformApiResponse } from '@/types/webform';
 
 export class WebformService {
   private baseUrl: string;
