@@ -18,7 +18,7 @@ export default function WebformPageClient({
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [submissionData, setSubmissionData] = useState<unknown>(null);
-
+  console.log(webformStructure);
   const handleFormSubmit = async (formData: WebformData) => {
     try {
       const result = await submitWebform(webformId, formData);
@@ -105,7 +105,7 @@ export default function WebformPageClient({
           webformStructure={webformStructure}
           onSubmit={handleFormSubmit}
           onStepChange={(current, total) => {
-            // You can use this to update URL or track analytics
+            // sendGTMEvent here to track usage
             console.log(`Step ${current} of ${total}`);
           }}
         />

@@ -8,7 +8,6 @@ import {
 export class ClientWebformService implements ClientWebformServiceInterface {
   async fetchFormStructure(webformId: string): Promise<WebformStructure> {
     try {
-      console.log("Fetching form structure for:", webformId);
       const response = await fetch(`/api/webform/${webformId}/structure`);
 
       if (!response.ok) {

@@ -1,13 +1,13 @@
-import { WebformField, AddressData, FullNameData } from '@/types/webform';
-import TextField from './TextField';
-import TextArea from './TextArea';
-import Select from './Select';
-import DateList from './DateList';
-import Checkbox from './Checkbox';
-import FileUpload from './FileUpload';
-import EmailConfirm from './EmailConfirm';
-import AddressField from './AddressField';
-import FullNameField from './FullNameField';
+import { WebformField, AddressData, FullNameData } from "@/types/webform";
+import TextField from "./TextField";
+import TextArea from "./TextArea";
+import Select from "./Select";
+import DateList from "./DateList";
+import Checkbox from "./Checkbox";
+import FileUpload from "./FileUpload";
+import EmailConfirm from "./EmailConfirm";
+import AddressField from "./AddressField";
+import FullNameField from "./FullNameField";
 
 interface DynamicFieldProps {
   field: WebformField;
@@ -17,57 +17,63 @@ interface DynamicFieldProps {
   errors: Record<string, string>;
 }
 
-export default function DynamicField({ field, fieldKey, value, onChange, errors }: DynamicFieldProps) {
-  const fieldType = field['#type'];
+export default function DynamicField({
+  field,
+  fieldKey,
+  value,
+  onChange,
+  errors,
+}: DynamicFieldProps) {
+  const fieldType = field["#type"];
   const error = errors[fieldKey];
 
   // Skip fields with no access
-  if (field['#access'] === false) {
+  if (field["#access"] === false) {
     return null;
   }
 
   switch (fieldType) {
-    case 'textfield':
+    case "textfield":
       return (
         <TextField
           field={field}
-          value={(value as string) || ''}
+          value={(value as string) || ""}
           onChange={onChange}
           error={error}
         />
       );
 
-    case 'textarea':
+    case "textarea":
       return (
         <TextArea
           field={field}
-          value={(value as string) || ''}
+          value={(value as string) || ""}
           onChange={onChange}
           error={error}
         />
       );
 
-    case 'select':
+    case "select":
       return (
         <Select
           field={field}
-          value={(value as string) || ''}
+          value={(value as string) || ""}
           onChange={onChange}
           error={error}
         />
       );
 
-    case 'datelist':
+    case "datelist":
       return (
         <DateList
           field={field}
-          value={(value as string) || ''}
+          value={(value as string) || ""}
           onChange={onChange}
           error={error}
         />
       );
 
-    case 'checkbox':
+    case "checkbox":
       return (
         <Checkbox
           field={field}
@@ -77,7 +83,7 @@ export default function DynamicField({ field, fieldKey, value, onChange, errors 
         />
       );
 
-    case 'managed_file':
+    case "managed_file":
       return (
         <FileUpload
           field={field}
@@ -87,37 +93,50 @@ export default function DynamicField({ field, fieldKey, value, onChange, errors 
         />
       );
 
-    case 'webform_email_confirm':
+    case "webform_email_confirm":
       return (
         <EmailConfirm
           field={field}
-          value={(value as { email: string; email_confirm: string }) || { email: '', email_confirm: '' }}
+          value={
+            (value as { email: string; email_confirm: string }) || {
+              email: "",
+              email_confirm: "",
+            }
+          }
           onChange={onChange}
           error={error}
         />
       );
 
-    case 'webform_address':
+    case "webform_address":
       return (
         <AddressField
           field={field}
-          value={(value as AddressData) || { address: '', city: '', postal_code: '' }}
+          value={
+            (value as AddressData) || { address: "", city: "", postal_code: "" }
+          }
           onChange={onChange}
           errors={errors}
         />
       );
 
-    case 'webform_composite_plus:full_name':
+    case "webform_composite_plus:full_name":
       return (
         <FullNameField
           field={field}
-          value={(value as FullNameData) || { title: '', first_name: '', last_name: '' }}
+          value={
+            (value as FullNameData) || {
+              title: "",
+              first_name: "",
+              last_name: "",
+            }
+          }
           onChange={onChange}
           errors={errors}
         />
       );
 
-    case 'webform_wizard_page':
+    case "webform_wizard_page":
       // Wizard pages are handled by the main form component
       return null;
 
@@ -128,9 +147,7 @@ export default function DynamicField({ field, fieldKey, value, onChange, errors 
           <p className="text-sm text-yellow-800">
             Unsupported field type: <code>{fieldType}</code>
           </p>
-          <p className="text-xs text-yellow-600 mt-1">
-            Field key: {fieldKey}
-          </p>
+          <p className="text-xs text-yellow-600 mt-1">Field key: {fieldKey}</p>
         </div>
       );
   }

@@ -240,7 +240,7 @@ export default function FormDemo() {
             <div className="text-center">
               <button
                 onClick={() => setSubmissionResult(null)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mr-4"
+                className="px-6 py-2 bg-[#2C53CD] text-white rounded-md hover:bg-blue-700 transition-colors mr-4"
               >
                 Submit Another Form
               </button>

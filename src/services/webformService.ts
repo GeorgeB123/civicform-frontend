@@ -7,9 +7,11 @@ import {
 
 export class WebformService implements WebformServiceInterface {
   private baseUrl: string;
+  private submissionEndpoint?: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, submissionEndpoint?: string) {
     this.baseUrl = baseUrl;
+    this.submissionEndpoint = submissionEndpoint;
   }
 
   async fetchFormStructure(webformId: string): Promise<WebformStructure> {
@@ -44,17 +46,19 @@ export class WebformService implements WebformServiceInterface {
       // Transform form data to match Drupal's expected format
       const submissionData = this.transformFormData(formData);
 
-      const response = await fetch(
-        `${this.baseUrl}/webform_rest/${webformId}/submit`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(submissionData),
-        }
-      );
+      // Use submissionEndpoint if provided, otherwise use baseUrl
+      const submitUrl = this.submissionEndpoint
+        ? `${this.submissionEndpoint}/webform_rest/${webformId}/submit`
+        : `${this.baseUrl}/webform_rest/${webformId}/submit`;
+
+      const response = await fetch(submitUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
