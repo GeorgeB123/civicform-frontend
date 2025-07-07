@@ -173,7 +173,7 @@ export default function MultiStepForm({ webformStructure, onSubmit, onStepChange
     return (
       <div className="flex justify-center items-center p-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading form...</p>
         </div>
       </div>
@@ -291,7 +291,7 @@ export default function MultiStepForm({ webformStructure, onSubmit, onStepChange
 
       {/* Main Content */}
       <div className="flex-1 lg:p-8">
-        <div className="lg:hidden h-32"></div> {/* Spacer for mobile nav */}
+        <div className="lg:hidden h-32" /> {/* Spacer for mobile nav */}
         <div className="max-w-4xl mx-auto p-4 lg:p-0">
 
           {/* Current Step Title */}
