@@ -96,14 +96,12 @@ export interface WebformApiResponse {
   };
 }
 
-// Server action types
 export interface SubmissionResult {
   success: boolean;
   data?: unknown;
   error?: string;
 }
 
-// File upload types
 export interface FileUploadResult {
   fid?: string;
   id?: string;
@@ -112,14 +110,12 @@ export interface FileUploadResult {
   filemime?: string;
 }
 
-// Client service types
 export interface ClientWebformServiceInterface {
   fetchFormStructure(webformId: string): Promise<WebformStructure>;
   submitForm(webformId: string, formData: FormData): Promise<unknown>;
   uploadFiles(files: File[]): Promise<unknown[]>;
 }
 
-// Server service types
 export interface WebformServiceInterface {
   fetchFormStructure(webformId: string): Promise<WebformStructure>;
   submitForm(webformId: string, formData: FormData): Promise<unknown>;

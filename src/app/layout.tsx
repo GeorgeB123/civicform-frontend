@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header title="CivicForm Frontend" />
+        <Header title="Submit a Report" />
         {children}
       </body>
     </html>
