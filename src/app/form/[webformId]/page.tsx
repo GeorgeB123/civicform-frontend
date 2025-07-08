@@ -3,7 +3,7 @@ import { fetchWebformStructure } from "@/app/actions/webform";
 import WebformPageClient from "./WebformPageClient";
 
 interface Props {
-  params: { webformId: string };
+  params: Promise<{ webformId: string }>;
 }
 
 export default async function WebformPage({ params }: Props) {
