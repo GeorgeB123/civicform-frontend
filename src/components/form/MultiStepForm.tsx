@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { observer } from "mobx-react-lite";
 import {
   WebformStructure,
   WebformField,
@@ -9,6 +10,7 @@ import {
   StepData,
 } from "@/types/webform";
 import { validateStep } from "@/utils/formValidation";
+import { useFormStore } from "@/stores/StoreProvider";
 import FormStep from "./FormStep";
 
 interface MultiStepFormProps {
@@ -17,29 +19,28 @@ interface MultiStepFormProps {
   onStepChange?: (currentStep: number, totalSteps: number) => void;
 }
 
-export default function MultiStepForm({
+const MultiStepForm = observer(function MultiStepForm({
   webformStructure,
   onSubmit,
   onStepChange,
 }: MultiStepFormProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<WebformData>({});
+  const formStore = useFormStore();
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [steps, setSteps] = useState<StepData[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Parse webform structure into steps
+  // Initialize form store and parse webform structure into steps
   useEffect(() => {
+    formStore.initializeForm(webformStructure);
     const parsedSteps = parseWebformStructure(webformStructure);
     setSteps(parsedSteps);
-  }, [webformStructure]);
+  }, [webformStructure, formStore]);
 
   // Notify parent of step changes
   useEffect(() => {
     if (onStepChange && steps.length > 0) {
-      onStepChange(currentStep + 1, steps.length);
+      onStepChange(formStore.currentStep + 1, steps.length);
     }
-  }, [currentStep, steps.length, onStepChange]);
+  }, [formStore.currentStep, steps.length, onStepChange]);
 
   const parseWebformStructure = (structure: WebformStructure): StepData[] => {
     const stepList: StepData[] = [];
@@ -90,10 +91,10 @@ export default function MultiStepForm({
     fieldKey: string,
     value: string | number | boolean | object | File[]
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldKey]: value,
-    }));
+    const currentStepKey = steps[formStore.currentStep]?.id;
+    if (currentStepKey) {
+      formStore.setFieldValue(currentStepKey, fieldKey, value);
+    }
 
     // Clear errors for this field
     setErrors((prev) =>
@@ -104,7 +105,7 @@ export default function MultiStepForm({
   const validateCurrentStep = (): boolean => {
     if (steps.length === 0) return false;
 
-    const currentStepData = steps[currentStep];
+    const currentStepData = steps[formStore.currentStep];
     if (!currentStepData) return false;
 
     // Create a field map for validation
@@ -116,6 +117,7 @@ export default function MultiStepForm({
       }
     });
 
+    const formData = formStore.getAllFormData();
     const stepErrors = validateStep(fieldMap, formData);
     setErrors(stepErrors);
 
@@ -124,23 +126,19 @@ export default function MultiStepForm({
 
   const handleNext = () => {
     if (validateCurrentStep()) {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep((prev) => prev + 1);
-      }
+      formStore.nextStep();
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-      setErrors([]); // Clear errors when going back
-    }
+    formStore.previousStep();
+    setErrors([]); // Clear errors when going back
   };
 
   const goToStep = (stepIndex: number) => {
     // Only allow navigation to previous steps or current step
-    if (stepIndex <= currentStep) {
-      setCurrentStep(stepIndex);
+    if (stepIndex <= formStore.currentStep) {
+      formStore.setCurrentStep(stepIndex);
       setErrors([]); // Clear errors when jumping to a step
     }
   };
@@ -149,6 +147,7 @@ export default function MultiStepForm({
     // Validate all steps before submission
     let allValid = true;
     const allErrors: ValidationError[] = [];
+    const formData = formStore.getAllFormData();
 
     for (let i = 0; i < steps.length; i++) {
       const stepData = steps[i];
@@ -179,18 +178,22 @@ export default function MultiStepForm({
         )
       );
       if (firstErrorStep !== -1) {
-        setCurrentStep(firstErrorStep);
+        formStore.setCurrentStep(firstErrorStep);
       }
       return;
     }
 
-    setIsSubmitting(true);
+    formStore.setSubmitting(true);
     try {
       await onSubmit(formData);
+      formStore.clearForm(); // Clear form data after successful submission
     } catch (error) {
       console.error("Form submission error:", error);
+      formStore.setSubmitError(
+        error instanceof Error ? error.message : "Submission failed"
+      );
     } finally {
-      setIsSubmitting(false);
+      formStore.setSubmitting(false);
     }
   };
 
@@ -205,8 +208,8 @@ export default function MultiStepForm({
     );
   }
 
-  const currentStepData = steps[currentStep];
-  const isLastStep = currentStep === steps.length - 1;
+  const currentStepData = steps[formStore.currentStep];
+  const isLastStep = formStore.currentStep === steps.length - 1;
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
@@ -215,10 +218,11 @@ export default function MultiStepForm({
         <div className="p-6 border-b border-gray-200">
           <div className="mt-2 flex items-center text-sm text-gray-600">
             <span>
-              Step {currentStep + 1} of {steps.length}
+              Step {formStore.currentStep + 1} of {steps.length}
             </span>
             <span className="ml-2 text-blue-600">
-              ({Math.round(((currentStep + 1) / steps.length) * 100)}% complete)
+              ({Math.round(((formStore.currentStep + 1) / steps.length) * 100)}%
+              complete)
             </span>
           </div>
         </div>
@@ -229,11 +233,11 @@ export default function MultiStepForm({
               <button
                 key={step.id}
                 onClick={() => goToStep(index)}
-                disabled={index > currentStep}
+                disabled={index > formStore.currentStep}
                 className={`w-full text-left p-4 rounded-lg transition-all duration-200 ${
-                  index === currentStep
+                  index === formStore.currentStep
                     ? "bg-blue-50 border-2 border-blue-200 text-blue-900"
-                    : index < currentStep
+                    : index < formStore.currentStep
                     ? "bg-green-50 border-2 border-green-200 text-green-900 hover:bg-green-100"
                     : "bg-gray-50 border-2 border-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
@@ -241,22 +245,22 @@ export default function MultiStepForm({
                 <div className="flex items-start space-x-3">
                   <div
                     className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      index === currentStep
+                      index === formStore.currentStep
                         ? "bg-[#2C53CD] text-white"
-                        : index < currentStep
+                        : index < formStore.currentStep
                         ? "bg-green-500 text-white"
                         : "bg-gray-300 text-gray-600"
                     }`}
                   >
-                    {index < currentStep ? "✓" : index + 1}
+                    {index < formStore.currentStep ? "✓" : index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium">{step.title}</div>
-                    {index <= currentStep && (
+                    {index <= formStore.currentStep && (
                       <div className="text-xs text-gray-500 mt-1">
-                        {index === currentStep
+                        {index === formStore.currentStep
                           ? "Current step"
-                          : index < currentStep
+                          : index < formStore.currentStep
                           ? "Completed"
                           : "Not started"}
                       </div>
@@ -272,7 +276,9 @@ export default function MultiStepForm({
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-[#2C53CD] h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              style={{
+                width: `${((formStore.currentStep + 1) / steps.length) * 100}%`,
+              }}
             ></div>
           </div>
         </div>
@@ -283,14 +289,16 @@ export default function MultiStepForm({
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-gray-600">
-              {currentStep + 1} of {steps.length}
+              {formStore.currentStep + 1} of {steps.length}
             </span>
           </div>
 
           <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
             <div
               className="bg-[#2C53CD] h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              style={{
+                width: `${((formStore.currentStep + 1) / steps.length) * 100}%`,
+              }}
             ></div>
           </div>
 
@@ -299,18 +307,18 @@ export default function MultiStepForm({
               <button
                 key={step.id}
                 onClick={() => goToStep(index)}
-                disabled={index > currentStep}
+                disabled={index > formStore.currentStep}
                 className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                  index === currentStep
+                  index === formStore.currentStep
                     ? "bg-[#2C53CD] text-white"
-                    : index < currentStep
+                    : index < formStore.currentStep
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-200 text-gray-500 cursor-not-allowed"
                 }`}
               >
                 <div className="flex items-center space-x-1">
                   <span className="w-4 h-4 rounded-full bg-current bg-opacity-20 flex items-center justify-center text-[10px]">
-                    {index < currentStep ? "✓" : index + 1}
+                    {index < formStore.currentStep ? "✓" : index + 1}
                   </span>
                   <span className="truncate max-w-20">{step.title}</span>
                 </div>
@@ -329,7 +337,7 @@ export default function MultiStepForm({
               {currentStepData.title}
             </h1>
             <p className="text-gray-600">
-              Step {currentStep + 1} of {steps.length}
+              Step {formStore.currentStep + 1} of {steps.length}
             </p>
           </div> */}
           {/* Error summary */}
@@ -349,7 +357,7 @@ export default function MultiStepForm({
           <div className="bg-white shadow p-6 lg:p-8 mb-6">
             <FormStep
               step={currentStepData}
-              data={formData}
+              data={formStore.getAllFormData()}
               onChange={handleFieldChange}
               errors={errors}
             />
@@ -359,9 +367,9 @@ export default function MultiStepForm({
             <button
               type="button"
               onClick={handlePrevious}
-              disabled={currentStep === 0}
+              disabled={formStore.currentStep === 0}
               className={`px-6 py-3 cursor-pointer font-medium transition-colors ${
-                currentStep === 0
+                formStore.currentStep === 0
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
@@ -373,10 +381,10 @@ export default function MultiStepForm({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={formStore.isSubmitting}
                 className="px-8 py-3 bg-green-600 text-white cursor-pointer font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? (
+                {formStore.isSubmitting ? (
                   <div className="flex items-center space-x-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     <span>Submitting...</span>
@@ -400,4 +408,6 @@ export default function MultiStepForm({
       </div>
     </div>
   );
-}
+});
+
+export default MultiStepForm;
