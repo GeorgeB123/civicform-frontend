@@ -37,4 +37,5 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       - run: npm ci
+      - run: npm run test:run
       - run: npm run build
