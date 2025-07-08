@@ -1,6 +1,5 @@
 import {
   FormData as WebformData,
-  WebformStructure,
   WebformServiceInterface,
   FileUploadResult,
   WebformApiResponse,
@@ -60,7 +59,13 @@ export class WebformService implements WebformServiceInterface {
   async submitForm(webformId: string, formData: WebformData): Promise<unknown> {
     try {
       // Transform form data to match Drupal's expected format
-      const submissionData = this.transformFormData(formData);
+      const transformedData = this.transformFormData(formData);
+
+      // Structure the payload with webform_id and data keys
+      const submissionData = {
+        webform_id: webformId,
+        data: transformedData,
+      };
 
       // Use submissionEndpoint if provided, otherwise use baseUrl
       const submitUrl = this.submissionEndpoint
