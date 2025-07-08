@@ -14,21 +14,25 @@ export async function submitWebform(
   formData: WebformData
 ): Promise<SubmissionResult> {
   try {
-    const drupalUrl = process.env.DRUPAL_URL;
-    const submissionEndpoint = process.env.DRUPAL_SUBMISSION_ENDPOINT;
-    if (!drupalUrl || !submissionEndpoint) {
-      return {
-        success: false,
-        error: "Environment variables are not configured",
-      };
+    // Use the API route which handles both real and mock submissions
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/webform/${webformId}/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const webformService = new WebformService(drupalUrl, submissionEndpoint);
-    const result = await webformService.submitForm(webformId, formData);
-
+    const result = await response.json();
+    
     return {
-      success: true,
-      data: result,
+      success: result.success || true,
+      data: result.data || result,
     };
   } catch (error) {
     console.error("Error submitting webform:", error);

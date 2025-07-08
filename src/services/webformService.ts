@@ -45,11 +45,18 @@ export class WebformService implements WebformServiceInterface {
     try {
       // Transform form data to match Drupal's expected format
       const submissionData = this.transformFormData(formData);
+      
+      // Debug: Log the transformed submission data
+      console.log("Transformed submission data:", JSON.stringify(submissionData, null, 2));
 
       // Use submissionEndpoint if provided, otherwise use baseUrl
       const submitUrl = this.submissionEndpoint
         ? `${this.submissionEndpoint}/webform_rest/${webformId}/submit`
         : `${this.baseUrl}/webform_rest/${webformId}/submit`;
+
+      // Debug: Log the final payload and endpoint
+      console.log("Submission endpoint:", submitUrl);
+      console.log("Final JSON payload:", JSON.stringify(submissionData, null, 2));
 
       const response = await fetch(submitUrl, {
         method: "POST",
@@ -78,7 +85,7 @@ export class WebformService implements WebformServiceInterface {
     }
   }
 
-  private transformFormData(formData: WebformData): Record<string, unknown> {
+  public transformFormData(formData: WebformData): Record<string, unknown> {
     const transformed: Record<string, unknown> = {};
 
     Object.entries(formData).forEach(([key, value]) => {

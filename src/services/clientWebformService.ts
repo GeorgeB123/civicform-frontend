@@ -51,6 +51,12 @@ export class ClientWebformService implements ClientWebformServiceInterface {
         }
       }
 
+      // Debug: Log client-side submission data
+      console.log("=== CLIENT WEBFORM SUBMISSION DEBUG ===");
+      console.log("Webform ID:", webformId);
+      console.log("Original form data:", JSON.stringify(formData, null, 2));
+      console.log("Processed form data (after file uploads):", JSON.stringify(processedData, null, 2));
+
       const response = await fetch(`/api/webform/${webformId}/submit`, {
         method: "POST",
         headers: {
