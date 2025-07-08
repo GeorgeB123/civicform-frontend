@@ -117,7 +117,7 @@ export interface ClientWebformServiceInterface {
 }
 
 export interface WebformServiceInterface {
-  fetchFormStructure(webformId: string): Promise<WebformStructure>;
+  fetchFormStructure(webformId: string): Promise<WebformApiResponse>;
   submitForm(webformId: string, formData: FormData): Promise<unknown>;
   uploadFiles(files: File[]): Promise<unknown[]>;
 }

@@ -3,6 +3,7 @@ import {
   WebformStructure,
   WebformServiceInterface,
   FileUploadResult,
+  WebformApiResponse,
 } from "@/types/webform";
 
 export class WebformService implements WebformServiceInterface {
@@ -14,7 +15,7 @@ export class WebformService implements WebformServiceInterface {
     this.submissionEndpoint = submissionEndpoint;
   }
 
-  async fetchFormStructure(webformId: string): Promise<WebformStructure> {
+  async fetchFormStructure(webformId: string): Promise<WebformApiResponse> {
     try {
       console.log("Fetching form structure for:", webformId);
       const response = await fetch(
@@ -31,10 +32,25 @@ export class WebformService implements WebformServiceInterface {
 
       // Handle both direct structure and wrapped response formats
       if (data.elements) {
-        return data.elements;
+        return {
+          webform: {
+            id: data.id || webformId,
+            title: data.title || "Form",
+            description: data.description,
+            settings: data.settings,
+          },
+          elements: data.elements,
+        };
       }
 
-      return data;
+      // If it's just elements, wrap it in the expected format
+      return {
+        webform: {
+          id: webformId,
+          title: "Form",
+        },
+        elements: data,
+      };
     } catch (error) {
       console.error("Error fetching form structure:", error);
       throw error;

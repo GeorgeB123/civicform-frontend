@@ -51,8 +51,8 @@ export async function fetchWebformStructure(webformId: string) {
     }
 
     const webformService = new WebformService(drupalUrl);
-    const structure = await webformService.fetchFormStructure(webformId);
-    return structure;
+    const response = await webformService.fetchFormStructure(webformId);
+    return response;
   } catch (error) {
     console.error("Error fetching webform structure:", error);
     return null;

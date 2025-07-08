@@ -13,16 +13,17 @@ export default async function WebformPage({ params }: Props) {
     notFound();
   }
 
-  const webformStructure = await fetchWebformStructure(webformId);
+  const webformResponse = await fetchWebformStructure(webformId);
 
-  if (!webformStructure) {
+  if (!webformResponse) {
     notFound();
   }
 
   return (
     <WebformPageClient
       webformId={webformId}
-      webformStructure={webformStructure}
+      webformStructure={webformResponse.elements}
+      webformTitle={webformResponse.webform.title}
     />
   );
 }

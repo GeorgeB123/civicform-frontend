@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import MultiStepForm from "@/components/form/MultiStepForm";
+import Header from "@/components/Header";
 import { submitWebform } from "@/app/actions/webform";
 import { WebformStructure, FormData as WebformData } from "@/types/webform";
 
 interface WebformPageClientProps {
   webformId: string;
   webformStructure: WebformStructure;
+  webformTitle: string;
 }
 
 export default function WebformPageClient({
   webformId,
   webformStructure,
+  webformTitle,
 }: WebformPageClientProps) {
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
@@ -99,16 +102,19 @@ export default function WebformPageClient({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <MultiStepForm
-          webformStructure={webformStructure}
-          onSubmit={handleFormSubmit}
-          onStepChange={(current, total) => {
-            // sendGTMEvent here to track usage
-            console.log(`Step ${current} of ${total}`);
-          }}
-        />
+    <div className="min-h-screen bg-gray-50">
+      <Header title={webformTitle} backLink="/" backLinkText="Home" />
+      <div className="py-8">
+        <div className="container mx-auto px-4">
+          <MultiStepForm
+            webformStructure={webformStructure}
+            onSubmit={handleFormSubmit}
+            onStepChange={(current, total) => {
+              // sendGTMEvent here to track usage
+              console.log(`Step ${current} of ${total}`);
+            }}
+          />
+        </div>
       </div>
     </div>
   );
