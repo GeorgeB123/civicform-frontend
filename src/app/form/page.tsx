@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import MultiStepForm from '@/components/form/MultiStepForm';
-import { WebformStructure, FormData as WebformData } from '@/types/webform';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import MultiStepForm from "@/components/form/MultiStepForm";
+import { WebformStructure, FormData as WebformData } from "@/types/webform";
 
 // Example data for testing - replace with your actual form structure
 const exampleFormStructure: WebformStructure = {
-  "contact_details": {
+  contact_details: {
     "#type": "webform_wizard_page",
     "#title": "Contact details",
     "#open": true,
-    "address": {
+    address: {
       "#type": "webform_address",
       "#title": "Address",
       "#title_display": "",
@@ -30,51 +30,48 @@ const exampleFormStructure: WebformStructure = {
       "#webform_children": [],
       "#webform_multiple": false,
       "#webform_composite": true,
-      "#webform_parents": [
-        "contact_details",
-        "address"
-      ],
+      "#webform_parents": ["contact_details", "address"],
       "#admin_title": "Address",
       "#webform_plugin_id": "webform_address",
       "#webform_composite_elements": {
-        "address": {
+        address: {
           "#type": "textfield",
           "#title": "Address",
           "#required": true,
           "#admin_title": "Address",
           "#webform_composite_id": "stolen_property--address--address",
           "#webform_composite_key": "address__address",
-          "#webform_composite_parent_key": "address"
+          "#webform_composite_parent_key": "address",
         },
-        "address_2": {
+        address_2: {
           "#type": "textfield",
           "#title": "Address 2",
           "#admin_title": "Address 2",
           "#webform_composite_id": "stolen_property--address--address_2",
           "#webform_composite_key": "address__address_2",
-          "#webform_composite_parent_key": "address"
+          "#webform_composite_parent_key": "address",
         },
-        "city": {
+        city: {
           "#type": "textfield",
           "#title": "City/Town",
           "#required": true,
           "#admin_title": "City/Town",
           "#webform_composite_id": "stolen_property--address--city",
           "#webform_composite_key": "address__city",
-          "#webform_composite_parent_key": "address"
+          "#webform_composite_parent_key": "address",
         },
-        "postal_code": {
+        postal_code: {
           "#type": "textfield",
           "#title": "Post Code",
           "#required": true,
           "#admin_title": "Post Code",
           "#webform_composite_id": "stolen_property--address--postal_code",
           "#webform_composite_key": "address__postal_code",
-          "#webform_composite_parent_key": "address"
-        }
-      }
+          "#webform_composite_parent_key": "address",
+        },
+      },
     },
-    "full_name": {
+    full_name: {
       "#type": "webform_composite_plus:full_name",
       "#title": "Full Name",
       "#title_display": "",
@@ -90,46 +87,43 @@ const exampleFormStructure: WebformStructure = {
       "#webform_children": [],
       "#webform_multiple": false,
       "#webform_composite": true,
-      "#webform_parents": [
-        "contact_details",
-        "full_name"
-      ],
+      "#webform_parents": ["contact_details", "full_name"],
       "#admin_title": "Full Name",
       "#webform_plugin_id": "webform_composite_plus:full_name",
       "#webform_composite_elements": {
-        "title": {
+        title: {
           "#type": "select",
           "#options": {
-            "mr": "Mr",
-            "mrs": "Mrs",
-            "ms": "Ms",
-            "dr": "Dr"
+            mr: "Mr",
+            mrs: "Mrs",
+            ms: "Ms",
+            dr: "Dr",
           },
           "#required": true,
           "#title": "Title",
           "#webform_composite_id": "stolen_property--full_name--title",
           "#webform_composite_key": "full_name__title",
-          "#webform_composite_parent_key": "full_name"
+          "#webform_composite_parent_key": "full_name",
         },
-        "first_name": {
+        first_name: {
           "#type": "textfield",
           "#required": true,
           "#title": "First Name",
           "#webform_composite_id": "stolen_property--full_name--first_name",
           "#webform_composite_key": "full_name__first_name",
-          "#webform_composite_parent_key": "full_name"
+          "#webform_composite_parent_key": "full_name",
         },
-        "last_name": {
+        last_name: {
           "#type": "textfield",
           "#required": true,
           "#title": "Last Name",
           "#webform_composite_id": "stolen_property--full_name--last_name",
           "#webform_composite_key": "full_name__last_name",
-          "#webform_composite_parent_key": "full_name"
-        }
-      }
+          "#webform_composite_parent_key": "full_name",
+        },
+      },
     },
-    "email": {
+    email: {
       "#type": "webform_email_confirm",
       "#title": "Email",
       "#required": true,
@@ -143,18 +137,15 @@ const exampleFormStructure: WebformStructure = {
       "#webform_children": [],
       "#webform_multiple": false,
       "#webform_composite": false,
-      "#webform_parents": [
-        "contact_details",
-        "email"
-      ],
+      "#webform_parents": ["contact_details", "email"],
       "#admin_title": "Email",
-      "#webform_plugin_id": "webform_email_confirm"
-    }
+      "#webform_plugin_id": "webform_email_confirm",
+    },
   },
-  "when_did_it_happen": {
+  when_did_it_happen: {
     "#type": "webform_wizard_page",
     "#title": "When did it happen",
-    "date": {
+    date: {
       "#type": "datelist",
       "#title": "Date",
       "#required": true,
@@ -167,18 +158,15 @@ const exampleFormStructure: WebformStructure = {
       "#webform_children": [],
       "#webform_multiple": false,
       "#webform_composite": false,
-      "#webform_parents": [
-        "when_did_it_happen",
-        "date"
-      ],
+      "#webform_parents": ["when_did_it_happen", "date"],
       "#admin_title": "Date",
-      "#webform_plugin_id": "datelist"
-    }
+      "#webform_plugin_id": "datelist",
+    },
   },
-  "what_was_stolen": {
+  what_was_stolen: {
     "#type": "webform_wizard_page",
     "#title": "What was stolen",
-    "what_was_taken": {
+    what_was_taken: {
       "#type": "textarea",
       "#title": "What was taken",
       "#required": true,
@@ -191,26 +179,25 @@ const exampleFormStructure: WebformStructure = {
       "#webform_children": [],
       "#webform_multiple": false,
       "#webform_composite": false,
-      "#webform_parents": [
-        "what_was_stolen",
-        "what_was_taken"
-      ],
+      "#webform_parents": ["what_was_stolen", "what_was_taken"],
       "#admin_title": "What was taken",
-      "#webform_plugin_id": "textarea"
-    }
-  }
+      "#webform_plugin_id": "textarea",
+    },
+  },
 };
 
 export default function FormDemo() {
   const router = useRouter();
-  const [submissionResult, setSubmissionResult] = useState<WebformData | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<WebformData | null>(
+    null
+  );
 
   const handleFormSubmit = async (formData: WebformData) => {
-    console.log('Form submitted with data:', formData);
-    
+    console.log("Form submitted with data:", formData);
+
     // Simulate API submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     setSubmissionResult(formData);
   };
 
@@ -221,16 +208,30 @@ export default function FormDemo() {
           <div className="bg-white rounded-lg shadow-sm border p-8">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Form Submitted Successfully!</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                Form Submitted Successfully!
+              </h1>
               <p className="text-gray-600">Thank you for your submission.</p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-gray-900 mb-2">Submitted Data:</h3>
+              <h3 className="font-medium text-gray-900 mb-2">
+                Submitted Data:
+              </h3>
               <pre className="text-sm text-gray-600 overflow-auto">
                 {JSON.stringify(submissionResult, null, 2)}
               </pre>
@@ -239,12 +240,12 @@ export default function FormDemo() {
             <div className="text-center">
               <button
                 onClick={() => setSubmissionResult(null)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mr-4"
+                className="px-6 py-2 bg-[#2C53CD] text-white rounded-md hover:bg-blue-700 transition-colors mr-4"
               >
                 Submit Another Form
               </button>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push("/")}
                 className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Back to Home
@@ -260,9 +261,12 @@ export default function FormDemo() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Multi-Step Form Demo</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Multi-Step Form Demo
+          </h1>
           <p className="text-gray-600">
-            This is a demonstration of the multi-step form component with your Drupal webform structure.
+            This is a demonstration of the multi-step form component with your
+            Drupal webform structure.
           </p>
         </div>
 

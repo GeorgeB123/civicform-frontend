@@ -36,20 +36,6 @@ export interface WebformStructure {
   [key: string]: WebformField;
 }
 
-export interface WebformApiResponse {
-  webform: {
-    id: string;
-    title: string;
-    description?: string;
-    settings?: Record<string, unknown>;
-  };
-  elements: WebformStructure;
-  metadata?: {
-    version: string;
-    timestamp: number;
-  };
-}
-
 export interface FormData {
   [key: string]: string | number | boolean | object | File[] | undefined;
 }
@@ -94,4 +80,44 @@ export interface FullNameData {
 export interface EmailConfirmData {
   email: string;
   email_confirm: string;
+}
+
+export interface WebformApiResponse {
+  webform: {
+    id: string;
+    title: string;
+    description?: string;
+    settings?: Record<string, unknown>;
+  };
+  elements: WebformStructure;
+  metadata?: {
+    version: string;
+    timestamp: number;
+  };
+}
+
+export interface SubmissionResult {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+}
+
+export interface FileUploadResult {
+  fid?: string;
+  id?: string;
+  filename?: string;
+  filesize?: number;
+  filemime?: string;
+}
+
+export interface ClientWebformServiceInterface {
+  fetchFormStructure(webformId: string): Promise<WebformStructure>;
+  submitForm(webformId: string, formData: FormData): Promise<unknown>;
+  uploadFiles(files: File[]): Promise<unknown[]>;
+}
+
+export interface WebformServiceInterface {
+  fetchFormStructure(webformId: string): Promise<WebformStructure>;
+  submitForm(webformId: string, formData: FormData): Promise<unknown>;
+  uploadFiles(files: File[]): Promise<unknown[]>;
 }
