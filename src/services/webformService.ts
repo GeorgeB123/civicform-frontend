@@ -29,11 +29,17 @@ export class WebformService implements WebformServiceInterface {
 
       // Handle both direct structure and wrapped response formats
       if (data.elements) {
+        // Check if form status is open
+        if (data.status && data.status !== "open") {
+          throw new Error("This form is closed");
+        }
+
         return {
           webform: {
             id: data.id || webformId,
             title: data.title || "Form",
             description: data.description,
+            status: data.status,
             settings: data.settings,
           },
           elements: data.elements,

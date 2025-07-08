@@ -87,6 +87,7 @@ export interface WebformApiResponse {
     id: string;
     title: string;
     description?: string;
+    status?: string;
     settings?: Record<string, unknown>;
   };
   elements: WebformStructure;
