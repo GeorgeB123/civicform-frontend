@@ -77,6 +77,7 @@ export default async function WebformPage({ params }: Props) {
         webformId={webformId}
         webformStructure={webformResponse.elements}
         webformTitle={webformResponse.webform.title}
+        turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
       />
     );
   } catch (error) {

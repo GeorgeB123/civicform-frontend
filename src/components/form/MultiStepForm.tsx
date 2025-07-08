@@ -12,16 +12,19 @@ import {
 import { validateStep } from "@/utils/formValidation";
 import { useFormStore } from "@/stores/StoreProvider";
 import FormStep from "./FormStep";
+import Turnstile from "./Turnstile";
 
 interface MultiStepFormProps {
   webformStructure: WebformStructure;
   onSubmit: (data: WebformData) => Promise<void>;
+  turnstileSiteKey: string;
   onStepChange?: (currentStep: number, totalSteps: number) => void;
 }
 
 const MultiStepForm = observer(function MultiStepForm({
   webformStructure,
   onSubmit,
+  turnstileSiteKey,
   onStepChange,
 }: MultiStepFormProps) {
   const formStore = useFormStore();
@@ -144,6 +147,12 @@ const MultiStepForm = observer(function MultiStepForm({
   };
 
   const handleSubmit = async () => {
+    // Check if Turnstile token is present
+    if (!formStore.turnstileToken) {
+      setErrors([{ field: "turnstile", message: "Please complete the security verification" }]);
+      return;
+    }
+
     // Validate all steps before submission
     let allValid = true;
     const allErrors: ValidationError[] = [];
@@ -185,7 +194,12 @@ const MultiStepForm = observer(function MultiStepForm({
 
     formStore.setSubmitting(true);
     try {
-      await onSubmit(formData);
+      // Add Turnstile token to form data
+      const formDataWithToken = {
+        ...formData,
+        'cf-turnstile-response': formStore.turnstileToken
+      };
+      await onSubmit(formDataWithToken);
       formStore.clearForm(); // Clear form data after successful submission
     } catch (error) {
       console.error("Form submission error:", error);
@@ -361,6 +375,27 @@ const MultiStepForm = observer(function MultiStepForm({
               onChange={handleFieldChange}
               errors={errors}
             />
+            
+            {/* Show Turnstile on the last step */}
+            {isLastStep && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Security Verification</h3>
+                <Turnstile
+                  siteKey={turnstileSiteKey}
+                  onVerifyAction={(token: string) => formStore.setTurnstileToken(token)}
+                  onErrorAction={() => formStore.setTurnstileToken(null)}
+                  onExpireAction={() => formStore.setTurnstileToken(null)}
+                  theme="auto"
+                  size="normal"
+                  className="flex justify-center"
+                />
+                {errors.some(error => error.field === "turnstile") && (
+                  <p className="mt-2 text-sm text-red-600">
+                    Please complete the security verification
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           {/* Navigation buttons */}
           <div className="flex justify-between">

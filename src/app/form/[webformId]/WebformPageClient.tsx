@@ -11,12 +11,14 @@ interface WebformPageClientProps {
   webformId: string;
   webformStructure: WebformStructure;
   webformTitle: string;
+  turnstileSiteKey: string;
 }
 
 export default function WebformPageClient({
   webformId,
   webformStructure,
   webformTitle,
+  turnstileSiteKey,
 }: WebformPageClientProps) {
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
@@ -116,6 +118,7 @@ export default function WebformPageClient({
           <MultiStepForm
             webformStructure={webformStructure}
             onSubmit={handleFormSubmit}
+            turnstileSiteKey={turnstileSiteKey}
             onStepChange={(current, total) => {
               // sendGTMEvent here to track usage
               console.log(`Step ${current} of ${total}`);

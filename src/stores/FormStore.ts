@@ -21,6 +21,7 @@ class FormStore {
   formStructure: WebformStructure | null = null;
   isSubmitting: boolean = false;
   submitError: string | null = null;
+  turnstileToken: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -252,12 +253,17 @@ class FormStore {
     this.submitError = error;
   }
 
+  setTurnstileToken(token: string | null) {
+    this.turnstileToken = token;
+  }
+
   clearForm() {
     this.formData = {};
     this.currentStep = 0;
     this.formStructure = null;
     this.isSubmitting = false;
     this.submitError = null;
+    this.turnstileToken = null;
     this.clearStorage();
   }
 

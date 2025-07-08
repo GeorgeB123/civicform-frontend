@@ -51,6 +51,7 @@ This application includes a comprehensive multi-step form system designed to wor
   - Composite fields (Address, Full Name)
 - **Real-time Validation**: Client-side validation with error handling
 - **Responsive Design**: Works on all device sizes
+- **Security**: Cloudflare Turnstile integration for bot protection
 
 ### Drupal Integration
 
@@ -59,7 +60,9 @@ The system expects Drupal webform data from the endpoint `webform_rest/{webform_
 ### Environment Setup
 
 Copy `.env.local.example` to `.env.local` and configure:
-- `NEXT_PUBLIC_DRUPAL_URL`: Your Drupal backend URL
+- `DRUPAL_URL`: Your Drupal backend URL
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`: Your Cloudflare Turnstile site key
+- `TURNSTILE_SECRET_KEY`: Your Cloudflare Turnstile secret key
 
 ### Usage
 
@@ -67,3 +70,44 @@ Copy `.env.local.example` to `.env.local` and configure:
 - `/form/[webformId]` - Dynamic form loaded from Drupal backend
 
 This system supports all Drupal webform field types and composite elements found in the provided example structure.
+
+## Security Features
+
+### Cloudflare Turnstile Integration
+
+The application includes Cloudflare Turnstile for bot protection on form submissions:
+
+- **Client-side**: Turnstile widget appears on the final step of multi-step forms
+- **Server-side**: Token verification before processing form submissions
+- **Configuration**: Requires `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` environment variables
+- **Fallback**: Uses demo keys if environment variables are not configured
+
+The Turnstile component is implemented without third-party libraries and handles:
+- Script loading and widget rendering
+- Token verification and error handling
+- Theme and size customization
+- Automatic cleanup on component unmount
+
+#### Development Testing
+
+For development testing, you have two options:
+
+**Option 1: Use Cloudflare Test Keys (Recommended for Development)**
+```bash
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+```
+These test keys always pass verification and work on any domain.
+
+**Option 2: Create Development Turnstile Site**
+1. Go to [Cloudflare Dashboard > Turnstile](https://dash.cloudflare.com/)
+2. Create a new site for development
+3. Set domain to `localhost` (without port number)
+4. Copy the Site Key and Secret Key to your `.env.local`
+
+#### Production Setup
+
+Create separate Turnstile sites for each production domain:
+- `*.vercel.app` (for Vercel deployments)
+- `*.civicform.net` (for custom domain)
+- Set environment variables in Vercel dashboard for production keys
