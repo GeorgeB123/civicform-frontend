@@ -15,15 +15,14 @@ export async function submitWebform(
 ): Promise<SubmissionResult> {
   try {
     const drupalUrl = process.env.DRUPAL_URL;
-    const submissionEndpoint = process.env.DRUPAL_SUBMISSION_ENDPOINT;
-    if (!drupalUrl || !submissionEndpoint) {
+    if (!drupalUrl) {
       return {
         success: false,
-        error: "Environment variables are not configured",
+        error: "DRUPAL_URL environment variable is not configured",
       };
     }
 
-    const webformService = new WebformService(drupalUrl, submissionEndpoint);
+    const webformService = new WebformService(drupalUrl);
     const result = await webformService.submitForm(webformId, formData);
 
     return {

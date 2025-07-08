@@ -22,9 +22,16 @@ export default function WebformPageClient({
   const [submitted, setSubmitted] = useState(false);
   const [submissionData, setSubmissionData] = useState<unknown>(null);
   console.log(webformStructure);
+  const serializeFormData = (data: WebformData): WebformData => {
+    // Deep clone and serialize the data to remove MobX symbols
+    return JSON.parse(JSON.stringify(data));
+  };
+
   const handleFormSubmit = async (formData: WebformData) => {
     try {
-      const result = await submitWebform(webformId, formData);
+      // Serialize the form data to remove MobX symbols
+      const serializedData = serializeFormData(formData);
+      const result = await submitWebform(webformId, serializedData);
 
       if (result.success) {
         console.log("Form submitted successfully:", result.data);
