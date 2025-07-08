@@ -4,10 +4,10 @@ import { FormData as WebformData } from "@/types/webform";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { webformId: string } }
+  { params }: { params: Promise<{ webformId: string }> }
 ) {
   try {
-    const webformId = params.webformId;
+    const { webformId } = await params;
 
     if (!webformId) {
       return NextResponse.json(
