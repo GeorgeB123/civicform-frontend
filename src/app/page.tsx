@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DynamicFormLoader from "@/components/DynamicFormLoader";
 
 export default function Home() {
   return (
@@ -34,12 +35,7 @@ export default function Home() {
             <p className="text-gray-600 mb-4">
               Load a form by webform ID from your Drupal backend
             </p>
-            <Link
-              href="/form/stolen_property"
-              className="inline-block px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-            >
-              Load Form
-            </Link>
+            <DynamicFormLoader />
           </div>
         </div>
 
