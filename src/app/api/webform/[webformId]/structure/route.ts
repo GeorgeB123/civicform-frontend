@@ -3,10 +3,10 @@ import { WebformService } from "@/services/webformService";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { webformId: string } }
+  { params }: { params: Promise<{ webformId: string }> }
 ) {
   try {
-    const webformId = params.webformId;
+    const { webformId } = await params;
 
     if (!webformId) {
       return NextResponse.json(
