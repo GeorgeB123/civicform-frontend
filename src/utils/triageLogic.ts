@@ -75,9 +75,6 @@ export function shouldShowField(
   formData: FormData,
   triageAnswers: Record<string, string | number | boolean>
 ): boolean {
-  const fieldKey = field['#webform_key'];
-  const fieldType = field['#type'];
-  
   // Note: Removed logic that hides 'what_was_taken' field when triage is answered
   // The field should remain visible to allow users to provide additional details
   
