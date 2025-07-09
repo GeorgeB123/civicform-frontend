@@ -78,14 +78,8 @@ export function shouldShowField(
   const fieldKey = field['#webform_key'];
   const fieldType = field['#type'];
   
-  // Special logic for generic "what was taken" fields when triage is answered
-  if (fieldType === 'textarea' && 
-      fieldKey === 'what_was_taken' && 
-      Object.keys(triageAnswers).length > 0) {
-    // Hide generic textarea if user has answered triage questions
-    // The triage answer already captures what was taken
-    return false;
-  }
+  // Note: Removed logic that hides 'what_was_taken' field when triage is answered
+  // The field should remain visible to allow users to provide additional details
   
   // Handle triage-enabled fields
   if (field['#triage_enabled'] && field['#triage_conditions']) {
