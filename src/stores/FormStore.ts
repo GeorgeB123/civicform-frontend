@@ -24,7 +24,6 @@ class FormStore {
 
   constructor() {
     makeAutoObservable(this);
-    this.loadFromStorage();
   }
 
   initializeForm(structure: WebformStructure) {
@@ -56,7 +55,7 @@ class FormStore {
       }
     });
 
-    this.saveToStorage();
+
   }
 
   private initializeStepFields(element: WebformField, stepData: FormStepData) {
@@ -127,7 +126,7 @@ class FormStore {
 
     this.formData[stepKey][fieldKey].value = value;
     this.validateField(stepKey, fieldKey);
-    this.saveToStorage();
+
   }
 
   setFieldError(stepKey: string, fieldKey: string, errors: string[]) {
@@ -135,7 +134,7 @@ class FormStore {
     
     this.formData[stepKey][fieldKey].errors = errors;
     this.formData[stepKey][fieldKey].isValid = errors.length === 0;
-    this.saveToStorage();
+
   }
 
   getFieldValue(stepKey: string, fieldKey: string): string | number | boolean | object | File[] | null {
@@ -212,7 +211,7 @@ class FormStore {
 
   setCurrentStep(step: number) {
     this.currentStep = step;
-    this.saveToStorage();
+
   }
 
   nextStep() {
@@ -220,7 +219,7 @@ class FormStore {
       const totalSteps = Object.keys(this.formStructure).length;
       if (this.currentStep < totalSteps - 1) {
         this.currentStep++;
-        this.saveToStorage();
+    
       }
     }
   }
@@ -228,7 +227,7 @@ class FormStore {
   previousStep() {
     if (this.currentStep > 0) {
       this.currentStep--;
-      this.saveToStorage();
+  
     }
   }
 
@@ -258,39 +257,10 @@ class FormStore {
     this.formStructure = null;
     this.isSubmitting = false;
     this.submitError = null;
-    this.clearStorage();
+
   }
 
-  private saveToStorage() {
-    if (typeof window !== 'undefined') {
-      const dataToSave = {
-        formData: this.formData,
-        currentStep: this.currentStep
-      };
-      localStorage.setItem('civicform-data', JSON.stringify(dataToSave));
-    }
-  }
 
-  private loadFromStorage() {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('civicform-data');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          this.formData = parsed.formData || {};
-          this.currentStep = parsed.currentStep || 0;
-        } catch (error) {
-          console.warn('Failed to load form data from storage:', error);
-        }
-      }
-    }
-  }
-
-  private clearStorage() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('civicform-data');
-    }
-  }
 }
 
 export default FormStore;
