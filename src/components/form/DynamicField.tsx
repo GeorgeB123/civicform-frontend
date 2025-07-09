@@ -1,4 +1,4 @@
-import { WebformField, AddressData, FullNameData } from "@/types/webform";
+import { WebformField, AddressData, FullNameData, CompositeData, FormData } from "@/types/webform";
 import TextField from "./TextField";
 import TextArea from "./TextArea";
 import Select from "./Select";
@@ -8,6 +8,8 @@ import FileUpload from "./FileUpload";
 import EmailConfirm from "./EmailConfirm";
 import AddressField from "./AddressField";
 import FullNameField from "./FullNameField";
+import GenericCompositeField from "./GenericCompositeField";
+import { shouldShowField } from "@/utils/triageLogic";
 
 interface DynamicFieldProps {
   field: WebformField;
@@ -15,6 +17,8 @@ interface DynamicFieldProps {
   value: unknown;
   onChange: (value: unknown) => void;
   errors: Record<string, string>;
+  formData?: FormData;
+  triageAnswers?: Record<string, string | number | boolean>;
 }
 
 export default function DynamicField({
@@ -23,12 +27,19 @@ export default function DynamicField({
   value,
   onChange,
   errors,
+  formData = {},
+  triageAnswers = {},
 }: DynamicFieldProps) {
   const fieldType = field["#type"];
   const error = errors[fieldKey];
 
   // Skip fields with no access
   if (field["#access"] === false) {
+    return null;
+  }
+
+  // Handle triage/conditional logic
+  if (!shouldShowField(field, formData, triageAnswers)) {
     return null;
   }
 
@@ -136,11 +147,33 @@ export default function DynamicField({
         />
       );
 
+    case "webform_composite_plus:car":
+      return (
+        <GenericCompositeField
+          field={field}
+          value={(value as CompositeData) || {}}
+          onChange={onChange}
+          errors={errors}
+        />
+      );
+
     case "webform_wizard_page":
       // Wizard pages are handled by the main form component
       return null;
 
     default:
+      // Handle any composite field generically
+      if (field["#webform_composite"] && field["#webform_composite_elements"]) {
+        return (
+          <GenericCompositeField
+            field={field}
+            value={(value as CompositeData) || {}}
+            onChange={onChange}
+            errors={errors}
+          />
+        );
+      }
+
       console.warn(`Unsupported field type: ${fieldType}`);
       return (
         <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">

@@ -7,6 +7,7 @@ export default function FormStep({
   data,
   onChange,
   errors,
+  triageAnswers = {},
 }: FormStepProps) {
   const errorMap = groupErrorsByField(errors);
 
@@ -34,6 +35,8 @@ export default function FormStep({
                 )
               }
               errors={errorMap}
+              formData={data}
+              triageAnswers={triageAnswers}
             />
           );
         })}

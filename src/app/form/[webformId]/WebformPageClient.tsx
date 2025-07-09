@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import MultiStepForm from "@/components/form/MultiStepForm";
 import Header from "@/components/Header";
 import { submitWebform } from "@/app/actions/webform";
-import { WebformStructure, FormData as WebformData } from "@/types/webform";
+import { WebformStructure, FormData as WebformData, WebformApiResponse } from "@/types/webform";
 
 interface WebformPageClientProps {
   webformId: string;
   webformStructure: WebformStructure;
   webformTitle: string;
+  webformData?: WebformApiResponse;
 }
 
 export default function WebformPageClient({
   webformId,
   webformStructure,
   webformTitle,
+  webformData,
 }: WebformPageClientProps) {
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
@@ -115,6 +117,7 @@ export default function WebformPageClient({
         <div className="container mx-auto px-4">
           <MultiStepForm
             webformStructure={webformStructure}
+            webformData={webformData}
             onSubmit={handleFormSubmit}
             onStepChange={(current, total) => {
               // sendGTMEvent here to track usage

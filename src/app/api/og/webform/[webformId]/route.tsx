@@ -4,7 +4,7 @@ import { fetchWebformStructure } from '@/app/actions/webform';
 export const runtime = 'edge';
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ webformId: string }> }
 ) {
   try {
@@ -16,7 +16,7 @@ export async function GET(
       return new Response('Webform not found', { status: 404 });
     }
 
-    const title = webformResponse.webform.title || 'Form';
+    const title = webformResponse.title || 'Form';
 
     return new ImageResponse(
       (

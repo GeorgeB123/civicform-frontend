@@ -35,24 +35,33 @@ export class WebformService implements WebformServiceInterface {
         }
 
         return {
-          webform: {
-            id: data.id || webformId,
-            title: data.title || "Form",
-            description: data.description,
-            status: data.status,
-            settings: data.settings,
-          },
+          id: data.id || webformId,
+          title: data.title || "Form",
+          description: data.description,
+          status: data.status,
+          settings: data.settings,
           elements: data.elements,
+          triage_applied: data.triage_applied || false,
+          triage: data.triage,
+          conditional_logic: data.conditional_logic,
+          validation: data.validation,
+          metadata: data.metadata,
         };
       }
 
       // If it's just elements, wrap it in the expected format
       return {
-        webform: {
-          id: webformId,
-          title: "Form",
-        },
+        id: webformId,
+        title: "Form",
+        description: "",
+        status: "open",
+        settings: {},
         elements: data,
+        triage_applied: false,
+        triage: undefined,
+        conditional_logic: undefined,
+        validation: undefined,
+        metadata: undefined,
       };
     } catch (error) {
       console.error("Error fetching form structure:", error);
