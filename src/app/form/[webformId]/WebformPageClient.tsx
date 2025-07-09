@@ -5,26 +5,35 @@ import { useRouter } from "next/navigation";
 import MultiStepForm from "@/components/form/MultiStepForm";
 import Header from "@/components/Header";
 import { submitWebform } from "@/app/actions/webform";
-import { WebformStructure, FormData as WebformData } from "@/types/webform";
+import { WebformStructure, FormData as WebformData, WebformApiResponse } from "@/types/webform";
 
 interface WebformPageClientProps {
   webformId: string;
   webformStructure: WebformStructure;
   webformTitle: string;
+  webformData?: WebformApiResponse;
 }
 
 export default function WebformPageClient({
   webformId,
   webformStructure,
   webformTitle,
+  webformData,
 }: WebformPageClientProps) {
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [submissionData, setSubmissionData] = useState<unknown>(null);
   console.log(webformStructure);
+  const serializeFormData = (data: WebformData): WebformData => {
+    // Deep clone and serialize the data to remove MobX symbols
+    return JSON.parse(JSON.stringify(data));
+  };
+
   const handleFormSubmit = async (formData: WebformData) => {
     try {
-      const result = await submitWebform(webformId, formData);
+      // Serialize the form data to remove MobX symbols
+      const serializedData = serializeFormData(formData);
+      const result = await submitWebform(webformId, serializedData);
 
       if (result.success) {
         console.log("Form submitted successfully:", result.data);
@@ -108,6 +117,7 @@ export default function WebformPageClient({
         <div className="container mx-auto px-4">
           <MultiStepForm
             webformStructure={webformStructure}
+            webformData={webformData}
             onSubmit={handleFormSubmit}
             onStepChange={(current, total) => {
               // sendGTMEvent here to track usage

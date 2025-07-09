@@ -96,6 +96,24 @@ describe('/api/webform/[webformId]/structure', () => {
     expect(data.error).toBe('Form not found')
   })
 
+  it('should handle closed form status', async () => {
+    const { WebformService } = await import('@/services/webformService')
+    const mockFetchFormStructure = vi.fn().mockRejectedValue(new Error('This form is closed'))
+    
+    vi.mocked(WebformService).mockImplementation(() => ({
+      fetchFormStructure: mockFetchFormStructure,
+    }) as unknown as InstanceType<typeof WebformService>)
+
+    const request = new NextRequest('http://localhost:3000/api/webform/closed-form/structure')
+    const params = Promise.resolve({ webformId: 'closed-form' })
+
+    const response = await GET(request, { params })
+    const data = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(data.error).toBe('This form is closed')
+  })
+
   it('should handle non-Error exceptions', async () => {
     const { WebformService } = await import('@/services/webformService')
     const mockFetchFormStructure = vi.fn().mockRejectedValue('Unknown error')

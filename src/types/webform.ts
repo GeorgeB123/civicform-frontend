@@ -60,9 +60,16 @@ export interface FormStepProps {
     value: string | number | boolean | object | File[]
   ) => void;
   errors: ValidationError[];
+  triageAnswers?: Record<string, string | number | boolean>;
 }
 
-export interface AddressData {
+// Generic composite data - dynamically typed based on composite elements
+export interface CompositeData {
+  [key: string]: string | number | boolean | undefined;
+}
+
+// Specific composite interfaces for type safety where needed
+export interface AddressData extends CompositeData {
   address: string;
   address_2?: string;
   city: string;
@@ -71,7 +78,7 @@ export interface AddressData {
   country?: string;
 }
 
-export interface FullNameData {
+export interface FullNameData extends CompositeData {
   title: string;
   first_name: string;
   last_name: string;
@@ -82,17 +89,57 @@ export interface EmailConfirmData {
   email_confirm: string;
 }
 
-export interface WebformApiResponse {
-  webform: {
-    id: string;
-    title: string;
-    description?: string;
-    settings?: Record<string, unknown>;
+// Triage system interfaces
+export interface TriageQuestion {
+  id: string;
+  type: string;
+  title: string;
+  description?: string;
+  required: number;
+  options: Record<string, string>;
+  conditions: unknown[];
+  weight: string;
+}
+
+export interface TriageData {
+  questions: Record<string, TriageQuestion>;
+  metadata: {
+    question_count: number;
+    required_questions: number;
+    optional_questions: number;
   };
+}
+
+export interface ConditionalLogic {
+  total_conditions: number;
+  elements_with_conditions: string[];
+  has_conditions: boolean;
+}
+
+export interface WebformApiResponse {
+  id: string;
+  title: string;
+  description?: string;
+  status?: string;
+  settings?: Record<string, unknown>;
   elements: WebformStructure;
+  triage_applied: boolean;
+  triage?: TriageData;
+  conditional_logic?: ConditionalLogic;
+  validation?: {
+    total_validation_rules: number;
+    required_elements: string[];
+    validated_elements: string[];
+    has_validation: boolean;
+  };
   metadata?: {
-    version: string;
-    timestamp: number;
+    created?: string | null;
+    updated?: string | null;
+    element_count: number;
+    has_conditions: boolean;
+    has_validation: boolean;
+    has_triage: boolean;
+    triage_filtered: boolean;
   };
 }
 

@@ -3,11 +3,14 @@ import {
   FormData as WebformData,
   ValidationError,
 } from "@/types/webform";
+import { shouldShowField } from "./triageLogic";
 
 export function validateField(
   field: WebformField,
   value: unknown,
-  fieldKey: string
+  fieldKey: string,
+  formData: WebformData = {},
+  triageAnswers: Record<string, string | number | boolean> = {}
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   const isRequired = field["#required"] || false;
@@ -15,6 +18,11 @@ export function validateField(
 
   // Skip validation for fields with no access
   if (field["#access"] === false) {
+    return errors;
+  }
+
+  // Skip validation for fields that should be hidden based on triage logic
+  if (!shouldShowField(field, formData, triageAnswers)) {
     return errors;
   }
 
@@ -136,6 +144,26 @@ export function validateField(
         });
       }
       break;
+
+    default:
+      // Handle any composite field generically
+      if (field["#webform_composite"] && field["#webform_composite_elements"]) {
+        if (value && typeof value === "object") {
+          const compositeValue = value as Record<string, string | undefined>;
+          const compositeElements = field["#webform_composite_elements"] || {};
+
+          Object.entries(compositeElements).forEach(([elementKey, element]) => {
+            if (element?.["#required"] && !compositeValue[elementKey]) {
+              const elementTitle = element["#title"] || element["#admin_title"] || elementKey;
+              errors.push({
+                field: `${fieldKey}.${elementKey}`,
+                message: `${elementTitle} is required`,
+              });
+            }
+          });
+        }
+      }
+      break;
   }
 
   return errors;
@@ -143,7 +171,8 @@ export function validateField(
 
 export function validateStep(
   fields: Record<string, WebformField>,
-  data: WebformData
+  data: WebformData,
+  triageAnswers: Record<string, string | number | boolean> = {}
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -153,7 +182,7 @@ export function validateStep(
       return;
     }
 
-    const fieldErrors = validateField(field, data[fieldKey], fieldKey);
+    const fieldErrors = validateField(field, data[fieldKey], fieldKey, data, triageAnswers);
     errors.push(...fieldErrors);
   });
 
@@ -207,6 +236,17 @@ export function hasValue(value: unknown, fieldType: string): boolean {
       );
 
     default:
+      // Handle composite fields generically
+      if (fieldType.includes("webform_composite") || fieldType.includes("composite")) {
+        return Boolean(
+          value &&
+            typeof value === "object" &&
+            Object.values(value as Record<string, unknown>).some(v => 
+              v !== null && v !== undefined && v !== ""
+            )
+        );
+      }
+      
       return Boolean(value);
   }
 }

@@ -12,7 +12,7 @@ export default function DynamicFormLoader() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!webformId.trim()) {
       setError("Please enter a webform ID");
       return;
@@ -24,13 +24,13 @@ export default function DynamicFormLoader() {
     try {
       const webformService = new ClientWebformService();
       await webformService.fetchFormStructure(webformId.trim());
-      
+
       router.push(`/form/${webformId.trim()}`);
     } catch (err) {
       console.error("Error validating webform:", err);
       setError(
-        err instanceof Error 
-          ? `Webform not found: ${err.message}` 
+        err instanceof Error
+          ? `${err.message}`
           : "Failed to load webform. Please check the ID and try again."
       );
     } finally {
@@ -50,13 +50,9 @@ export default function DynamicFormLoader() {
           disabled={isLoading}
         />
       </div>
-      
-      {error && (
-        <div className="text-red-600 text-sm text-left">
-          {error}
-        </div>
-      )}
-      
+
+      {error && <div className="text-red-600 text-sm text-left">{error}</div>}
+
       <button
         type="submit"
         disabled={isLoading}

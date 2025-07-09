@@ -8,32 +8,47 @@ import {
   FormData as WebformData,
   ValidationError,
   StepData,
+  WebformApiResponse,
 } from "@/types/webform";
 import { validateStep } from "@/utils/formValidation";
 import { useFormStore } from "@/stores/StoreProvider";
 import FormStep from "./FormStep";
+import TriageQuestion from "./TriageQuestion";
 
 interface MultiStepFormProps {
   webformStructure: WebformStructure;
+  webformData?: WebformApiResponse;
   onSubmit: (data: WebformData) => Promise<void>;
   onStepChange?: (currentStep: number, totalSteps: number) => void;
 }
 
 const MultiStepForm = observer(function MultiStepForm({
   webformStructure,
+  webformData,
   onSubmit,
   onStepChange,
 }: MultiStepFormProps) {
   const formStore = useFormStore();
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [steps, setSteps] = useState<StepData[]>([]);
+  const [triageAnswers, setTriageAnswers] = useState<
+    Record<string, string | number | boolean>
+  >({});
+  const [showTriageQuestions, setShowTriageQuestions] = useState(false);
 
   // Initialize form store and parse webform structure into steps
   useEffect(() => {
     formStore.initializeForm(webformStructure);
+
+    // Check if we need to show triage questions first
+    const hasTriage =
+      webformData?.triage &&
+      Object.keys(webformData.triage.questions).length > 0;
+    setShowTriageQuestions(hasTriage || false);
+
     const parsedSteps = parseWebformStructure(webformStructure);
     setSteps(parsedSteps);
-  }, [webformStructure, formStore]);
+  }, [webformStructure, webformData, formStore]);
 
   // Notify parent of step changes
   useEffect(() => {
@@ -102,6 +117,17 @@ const MultiStepForm = observer(function MultiStepForm({
     );
   };
 
+  const handleTriageAnswer = (questionId: string, value: string) => {
+    setTriageAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
+  };
+
+  const handleTriageComplete = () => {
+    setShowTriageQuestions(false);
+  };
+
   const validateCurrentStep = (): boolean => {
     if (steps.length === 0) return false;
 
@@ -118,7 +144,7 @@ const MultiStepForm = observer(function MultiStepForm({
     });
 
     const formData = formStore.getAllFormData();
-    const stepErrors = validateStep(fieldMap, formData);
+    const stepErrors = validateStep(fieldMap, formData, triageAnswers);
     setErrors(stepErrors);
 
     return stepErrors.length === 0;
@@ -160,7 +186,7 @@ const MultiStepForm = observer(function MultiStepForm({
         }
       });
 
-      const stepErrors = validateStep(fieldMap, formData);
+      const stepErrors = validateStep(fieldMap, formData, triageAnswers);
       if (stepErrors.length > 0) {
         allValid = false;
         allErrors.push(...stepErrors);
@@ -203,6 +229,51 @@ const MultiStepForm = observer(function MultiStepForm({
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading form...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show triage questions first if needed
+  if (showTriageQuestions && webformData?.triage) {
+    const triageQuestions = Object.entries(webformData.triage.questions);
+    const allQuestionsAnswered = triageQuestions.every(
+      ([questionId]) =>
+        triageAnswers[questionId] !== undefined &&
+        triageAnswers[questionId] !== ""
+    );
+
+    return (
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="bg-white shadow rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-[#00164b] mb-6">
+            Before we begin, please answer these questions:
+          </h2>
+
+          <div className="space-y-6">
+            {triageQuestions.map(([questionId, question]) => (
+              <TriageQuestion
+                key={questionId}
+                question={question}
+                value={(triageAnswers[questionId] as string) || ""}
+                onChange={(value) => handleTriageAnswer(questionId, value)}
+              />
+            ))}
+          </div>
+
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={handleTriageComplete}
+              disabled={!allQuestionsAnswered}
+              className={`px-6 py-3 font-medium transition-colors ${
+                allQuestionsAnswered
+                  ? "bg-[#2C53CD] text-white hover:bg-blue-700 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Continue to Form
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -255,7 +326,9 @@ const MultiStepForm = observer(function MultiStepForm({
                     {index < formStore.currentStep ? "✓" : index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">{step.title}</div>
+                    <div className="text-sm font-medium cursor-pointer">
+                      {step.title}
+                    </div>
                     {index <= formStore.currentStep && (
                       <div className="text-xs text-gray-500 mt-1">
                         {index === formStore.currentStep
@@ -360,6 +433,7 @@ const MultiStepForm = observer(function MultiStepForm({
               data={formStore.getAllFormData()}
               onChange={handleFieldChange}
               errors={errors}
+              triageAnswers={triageAnswers}
             />
           </div>
           {/* Navigation buttons */}
