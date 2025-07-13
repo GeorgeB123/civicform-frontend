@@ -6,10 +6,10 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-6">
-          ReportIt Frontend
+          Civicforms
         </h1>
         <p className="text-xl text-gray-600 mb-8">
-          Multi-step form system for Drupal webforms
+          Multi-step form system for public services and feedback forms
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

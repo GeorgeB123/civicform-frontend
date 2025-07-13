@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
             {/* Add your footer content here */}
             <div className="space-y-4">
               <p className="text-sm">
-                © {new Date().getFullYear()} New Zealand Government. All rights
+                © {new Date().getFullYear()} Bonnici. All rights
                 reserved.
               </p>
             </div>
@@ -18,14 +18,6 @@ const Footer: React.FC = () => {
 
           {/* Logo in bottom right */}
           <div className="flex-shrink-0">
-            <img
-              src="/govt.svg"
-              alt="New Zealand Government"
-              width="255"
-              height="57"
-              loading="lazy"
-              className="max-w-full h-auto"
-            />
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ This application includes a comprehensive multi-step form system designed to wor
 
 ### Drupal Integration
 
-The system expects Drupal webform data from the endpoint `webform_rest/{webform_id}/fields` and submits to `webform_rest/{webform_id}/submit`.
+The system expects Drupal webform data from the endpoint `api/webform/{webform_id}/structure` and submits to `api/webform/{webform_id}/submit`.
 
 ### Environment Setup
 
